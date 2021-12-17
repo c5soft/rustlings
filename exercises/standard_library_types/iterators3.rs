@@ -6,7 +6,6 @@
 //    list_of_results functions.
 // Execute `rustlings hint iterators3` to get some hints!
 
-// I AM NOT DONE
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum DivisionError {
@@ -22,20 +21,53 @@ pub struct NotDivisibleError {
 
 // Calculate `a` divided by `b` if `a` is evenly divisible by `b`.
 // Otherwise, return a suitable error.
-pub fn divide(a: i32, b: i32) -> Result<i32, DivisionError> {}
+pub fn divide(a: i32, b: i32) -> Result<i32, DivisionError> {
+    if b == 0 {
+        Err(DivisionError::DivideByZero)
+    } else {
+        let r = a / b;
+        if a == b * r {
+            Ok(r)
+        } else {
+            Err(DivisionError::NotDivisible(NotDivisibleError {
+                dividend: a,
+                divisor: b,
+            }))
+        }
+    }
+}
 
 // Complete the function and return a value of the correct type so the test passes.
 // Desired output: Ok([1, 11, 1426, 3])
-fn result_with_list() -> () {
+fn result_with_list() -> Result<Vec<i32>, DivisionError> {
     let numbers = vec![27, 297, 38502, 81];
     let division_results = numbers.into_iter().map(|n| divide(n, 27));
+    let ok_result: Vec<i32> = division_results
+        .clone()
+        .filter(|x| x.is_ok())
+        .map(|x| x.unwrap())
+        .collect();
+    if !ok_result.is_empty() {
+        Ok(ok_result)
+    } else {
+        if let Some(e) = division_results.filter(|x| !x.is_ok()).nth(0) {
+            if let Err(e) = e {
+                Err(e)
+            } else {
+                panic!("impossible")
+            }
+        } else {
+            Ok(Vec::new())
+        }
+    }
 }
 
 // Complete the function and return a value of the correct type so the test passes.
 // Desired output: [Ok(1), Ok(11), Ok(1426), Ok(3)]
-fn list_of_results() -> () {
+fn list_of_results() -> Vec<Result<i32, DivisionError>> {
     let numbers = vec![27, 297, 38502, 81];
-    let division_results = numbers.into_iter().map(|n| divide(n, 27));
+    let division_results = numbers.into_iter().map(|n| divide(n, 27)).collect();
+    division_results
 }
 
 #[cfg(test)]
